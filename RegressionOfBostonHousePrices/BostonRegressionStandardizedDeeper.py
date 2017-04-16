@@ -8,7 +8,8 @@ from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import KFold
 from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import Pipeline
-
+from keras.models import model_from_json
+import os
 
 dataframe = read_csv('/home/datadrive/PythonDev/DeepLearningPython/RegressionOfBostonHousePrices/boston', delim_whitespace=True, header=None)
 dataset = dataframe.values
@@ -26,6 +27,15 @@ def larger_model():
     model.compile(loss='mean_squared_error', optimizer='adam')
     return model
 
+modeltosave = larger_model()
+model_json = modeltosave.to_json()
+with open("model.json", "w") as json_file:
+    json_file.write(model_json)
+
+modeltosave.save_weights("model.h5")
+print('Model saved to disk')
+
+
 seed = 7
 numpy.random.seed(seed)
 
@@ -38,3 +48,4 @@ kfold = KFold(n_splits=10, random_state=seed)
 results = cross_val_score(pipeline, X, Y, cv=kfold)
 
 print("Larger: %.2f (%.2f) MSE" % (results.mean(), results.std()))
+
