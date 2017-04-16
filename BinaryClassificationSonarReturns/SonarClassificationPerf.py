@@ -50,13 +50,32 @@ def create_baseline():
     model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
     return model
 
+def create_smaller_baseline():
+    # create model
+    model = Sequential()
+    model.add(Dense(30, input_dim=60, kernel_initializer='normal', activation='relu'))
+    model.add(Dense(1, kernel_initializer='normal', activation='sigmoid'))
+    # compile
+    model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+    return model
+
+def create_larger_baseline():
+    # create model
+    model = Sequential()
+    model.add(Dense(60, input_dim=60, kernel_initializer='normal', activation='relu'))
+    model.add(Dense(30, kernel_initializer='normal', activation='relu'))
+    model.add(Dense(1, kernel_initializer='normal', activation='sigmoid'))
+    # compile
+    model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+    return model
+
 estimators = []
 estimators.append(('standardize', StandardScaler()))
-estimators.append(('mlp', KerasClassifier(build_fn=create_baseline, epochs=100, batch_size=5, verbose=0)))
+estimators.append(('mlp', KerasClassifier(build_fn=create_larger_baseline, epochs=100, batch_size=5, verbose=0)))
 pipeline = Pipeline(estimators)
 kfold = StratifiedKFold(n_splits=10, shuffle=True, random_state=seed)
 results = cross_val_score(pipeline, X, encoded_y, cv=kfold)
 
-# print("Baseline: %.2f%% (%.2f%%)" % (results.mean()*100, results.std()*100))
+print("Baseline: %.2f%% (%.2f%%)" % (results.mean()*100, results.std()*100))
 
 
